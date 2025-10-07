@@ -1,0 +1,172 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+app.use(express.json());
+
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/tasksDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log(err));
+
+// Task model
+const TaskSchema = new mongoose.Schema({
+  text: String
+});
+const Task = mongoose.model('Task', TaskSchema);
+
+// =======================
+// Update task by ID
+// =======================
+app.put('/update/:id', async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+
+  const updatedTask = await Task.findByIdAndUpdate(
+    id,
+    { text },
+    { new: true }
+  );
+
+  res.send(updatedTask);
+});
+
+// =======================
+// Delete task by ID
+// =======================
+app.delete('/delete/:id', async (req, res) => {
+  const { id } = req.params;
+  await Task.findByIdAndDelete(id);
+  res.send('Task deleted successfully');
+});
+
+// Start server
+app.listen(5000, () => {
+  console.log('Server running on http://localhost:5000');
+});
+
+import React from 'react';
+
+function TaskItem({ task, fetchTasks }) {
+
+  const updateTask = async () => {
+    const newText = prompt('Enter updated task text:', task.text);
+    if (!newText) return;
+
+    await fetch(http://localhost:5000/update/${task._id}, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: newText }),
+    });
+
+    fetchTasks(); // refresh the task list
+  };
+
+  const deleteTask = async () => {
+    await fetch(http://localhost:5000/delete/${task._id}, {
+      method: 'DELETE',
+    });
+
+    fetchTasks(); // refresh after delete
+  };
+
+  return (
+    <div style={{
+      border: '1px solid #ddd',
+      padding: '10px',
+      margin: '10px',
+      borderRadius: '5px',
+      display: 'flex',
+      justifyContent: 'space-between'
+    }}>
+      <span>{task.text}</span>
+      <div>
+        <button onClick={updateTask}>Edit</button>
+        <button onClick={deleteTask} style={{ marginLeft: '10px' }}>Delete</button>
+      </div>
+    </div>
+  );
+}
+
+export default TaskItem;
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState('');
+
+  // Fetch all tasks from backend
+  useEffect(() => {
+    axios.get('http://localhost:5000/tasks')
+      .then(res => setTasks(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  // Add a new task
+  const addTask = () => {
+    if (!newTask.trim()) return;
+
+    axios.post('http://localhost:5000/add', { text: newTask })
+      .then(res => setTasks([...tasks, res.data]))
+      .then(() => setNewTask(''))
+      .catch(err => console.error(err));
+  };
+
+  // ✅ Update task
+  const updateTask = (id, newText) => {
+    axios.put(http://localhost:5000/update/${id}, { text: newText })
+      .then(res => {
+        setTasks(tasks.map(t => t._id === id ? res.data : t));
+      })
+      .catch(err => console.error(err));
+  };
+
+  // 🗑 Delete task
+  const deleteTask = (id) => {
+    axios.delete(http://localhost:5000/delete/${id})
+      .then(() => setTasks(tasks.filter(t => t._id !== id)))
+      .catch(err => console.error(err));
+  };
+
+  return (
+    <div style={{ margin: '40px' }}>
+      <h1>Task Manager</h1>
+
+      <input
+        type="text"
+        placeholder="Enter task"
+        value={newTask}
+        onChange={e => setNewTask(e.target.value)}
+      />
+      <button onClick={addTask}>Add</button>
+
+      <ul>
+        {tasks.map(task => (
+          <li key={task._id} style={{ marginTop: '10px' }}>
+            {task.text}
+            <button
+              onClick={() => {
+                const newText = prompt('Update task:', task.text);
+                if (newText) updateTask(task._id, newText);
+              }}
+              style={{ marginLeft: '10px' }}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => deleteTask(task._id)}
+              style={{ marginLeft: '10px' }}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;

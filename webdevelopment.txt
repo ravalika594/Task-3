@@ -1,0 +1,15 @@
+Submissions Page - submissions.html
+html
+<body>
+<h2>All Submissions</h2>
+<ul id="list"></ul>
+
+<script>
+let submissions = JSON.parse(localStorage.getItem("contacts")) || [];
+let list = document.getElementById("list");
+
+submissions.forEach(s => {
+  list.innerHTML += <li>${s.name} - ${s.email} - ${s.message}</li>;
+});
+</script>
+</body>

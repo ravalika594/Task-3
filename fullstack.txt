@@ -1,0 +1,39 @@
+window.addEventListener("scroll", function() {
+  let navbar = document.querySelector("nav");
+  navbar.classList.toggle("scrolled", window.scrollY > 50);
+});
+
+nav {
+  transition: background 0.3s;
+}
+
+nav.scrolled {
+  background: #222;
+  color: #fff;
+}
+Form Validation (JS)
+
+document.getElementById("contactform").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  let email = document.getElementById("email").value;
+  if (!email.includes("@")) {
+    alert("Please enter a valid email!");
+    return;
+  }
+
+  alert("Form submitted successfully!");
+});
+
+Dark Mode Toggle (JS)
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("dark", document.body.classList.contains("dark-mode"));
+}
+
+window.onload = function() {
+  if (localStorage.getItem("dark") === "true") {
+    document.body.classList.add("dark-mode");
+  }
+};

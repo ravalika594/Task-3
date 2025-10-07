@@ -1,0 +1,64 @@
+package com.example.demo.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@CrossOrigin(origins = "*") // Allow frontend to call API
+public class ContactController {
+
+    @Autowired
+    private ContactRepository repo;
+
+    @GetMapping("/contacts")
+    public List<Contact> getAllContacts() {
+        return repo.findAll(); // returns JSON list
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contacts</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        table { border-collapse: collapse; width: 80%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>All Contacts</h1>
+    <table id="contactsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        fetch("http://localhost:8080/contacts")
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector("#contactsTable tbody");
+                data.forEach(contact => {
+                    const row = `
+                        <tr>
+                            <td>${contact.id}</td>
+                            <td>${contact.name}</td>
+                            <td>${contact.email}</td>
+                            <td>${contact.message}</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error("Error loading contacts:", error));
+    </script>
+</body>
+</html>

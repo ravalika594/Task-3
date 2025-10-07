@@ -1,0 +1,23 @@
+# Sample Starter Code
+
+import csv
+from datetime import datetime
+
+# Add expense with category
+def add_expense(desc, amount, category):
+    with open("expenses.csv", "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([desc, amount, category, datetime.now().strftime("%Y-%m-%d")])
+
+# View all expenses
+def view_all_expenses():
+    with open("expenses.csv", "r") as f:
+        for row in csv.reader(f):
+            print(row)
+
+# Search expenses by category
+def search_category(category):
+    with open("expenses.csv", "r") as f:
+        for row in csv.reader(f):
+            if row[2] == category:
+                print(row)
